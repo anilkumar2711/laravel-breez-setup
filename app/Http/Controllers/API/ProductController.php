@@ -5,6 +5,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
+
+
 class ProductController extends Controller
 {
     public function index() {
@@ -14,6 +16,10 @@ class ProductController extends Controller
 
     public function create() {
         return view('products.create');
+    }
+
+    public function edit(Product $product) {
+        return view('products.edit', compact('product'));
     }
 
     public function store(Request $request) {
@@ -35,7 +41,15 @@ class ProductController extends Controller
     }
 
     public function show(Product $product) {
-        return $product;
+        // Check if request come same domain then redirect to web route
+        if (request()->is('api/*')) {
+            return response()->json([
+                'data' => $product,
+                'message' => 'Product retrieved successfully'
+            ], 200);
+        } else {
+            return view('products.show', compact('product'));
+        }
     }
 
     public function update(Request $request, Product $product) {
@@ -44,13 +58,27 @@ class ProductController extends Controller
             'description' => 'nullable|string',
             'quantity' => 'required|integer',
         ]));
-
-        return $product;
+        // Check if request come same domain then redirect to web route
+        if ($request->is('api/*')) {
+            return response()->json([
+                'data' => $product,
+                'message' => 'Product updated successfully'
+            ], 200);
+        } else {
+            return redirect()->route('products.index')->with('success', 'Product updated successfully');
+        }
     }
 
     public function destroy(Product $product) {
         $product->delete();
-        return response()->noContent();
+        // Check if request come same domain then redirect to web route
+        if (request()->is('api/*')) {
+            return response()->json([
+                'message' => 'Product deleted successfully'
+            ], 204);
+        } else {
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        }
     }
 }
 // This controller provides basic CRUD operations for products.

@@ -40,4 +40,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/transactions/{transaction}/edit', [StockTransactionController::class, 'edit'])->name('products.transactions.edit');
 
 });
+
+Route::get('/translate/{locale}', function ($locale) {
+    session(['locale' => $locale]);
+    // dd($locale);
+    app()->setLocale($locale);
+    if (session()->has('url.intended')) {
+        return redirect(session('url.intended'));
+    }
+    // If no intended URL, redirect to the dashboard or home page
+    return redirect()->back();
+})->name('locale');
+
 require __DIR__.'/auth.php';

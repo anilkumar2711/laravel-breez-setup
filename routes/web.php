@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\StockTransactionController;
@@ -39,5 +40,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/products/{product}/transactions/create', [StockTransactionController::class, 'create'])->name('products.transactions.create');
     Route::get('/products/{product}/transactions/{transaction}/edit', [StockTransactionController::class, 'edit'])->name('products.transactions.edit');
 
+    // Route::apiResource('events', EventController::class);
+    Route::get('/events', [EventController::class, 'index'])->name('events.index');
+    Route::get('/events/create', [EventController::class, 'create'])->name('events.create');
+    Route::post('/events', [EventController::class, 'store'])->name('events.store');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::get('/events/{event}/edit', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('/events/{event}', [EventController::class, 'update'])->name('events.update');
+    Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('events.destroy');
+    Route::post('/event/slide/{event}', [EventController::class, 'slideEvent'])->name('events.slide');
+
 });
+
+Route::get('/translate/{locale}', function ($locale) {
+    session(['locale' => $locale]);
+    // dd($locale);
+    app()->setLocale($locale);
+    if (session()->has('url.intended')) {
+        return redirect(session('url.intended'));
+    }
+    // If no intended URL, redirect to the dashboard or home page
+    return redirect()->back();
+})->name('locale');
+
 require __DIR__.'/auth.php';
